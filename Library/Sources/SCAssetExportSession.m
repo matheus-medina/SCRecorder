@@ -179,7 +179,7 @@ static CGContextRef SCCreateContextFromPixelBuffer(CVPixelBufferRef pixelBuffer)
 
         CGContextRef ctx = SCCreateContextFromPixelBuffer(outputPixelBuffer);
 
-        void (^layoutBlock)() = ^{
+        void (^layoutBlock)(void) = ^{
             overlay.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
 
             if ([overlay respondsToSelector:@selector(updateWithVideoTime:)]) {
@@ -385,7 +385,7 @@ static CGContextRef SCCreateContextFromPixelBuffer(CVPixelBufferRef pixelBuffer)
     }
 }
 
-- (void)callCompletionHandler:(void (^)())completionHandler {
+- (void)callCompletionHandler:(void (^)(void))completionHandler {
     if (!_cancelled) {
         [self _setProgress:1];
     }
@@ -655,7 +655,7 @@ static CGContextRef SCCreateContextFromPixelBuffer(CVPixelBufferRef pixelBuffer)
     }
 }
 
-- (void)exportAsynchronouslyWithCompletionHandler:(void (^)())completionHandler {
+- (void)exportAsynchronouslyWithCompletionHandler:(void (^)(void))completionHandler {
     _cancelled = NO;
     _nextAllowedVideoFrame = kCMTimeZero;
     NSError *error = nil;
@@ -696,13 +696,13 @@ static CGContextRef SCCreateContextFromPixelBuffer(CVPixelBufferRef pixelBuffer)
     [self beginReadWriteOnVideo];
     
     dispatch_group_notify(_dispatchGroup, dispatch_get_main_queue(), ^{
-        if (_error == nil) {
-            _error = _writer.error;
+        if (self->_error == nil) {
+            self->_error = _writer.error;
         }
         
-        if (_error == nil && _writer.status != AVAssetWriterStatusCancelled) {
-            [_writer finishWritingWithCompletionHandler:^{
-                _error = _writer.error;
+        if (self->_error == nil && _writer.status != AVAssetWriterStatusCancelled) {
+            [self->_writer finishWritingWithCompletionHandler:^{
+                self->_error = _writer.error;
                 [self callCompletionHandler:completionHandler];
             }];
         } else {
