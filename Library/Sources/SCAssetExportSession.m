@@ -697,12 +697,12 @@ static CGContextRef SCCreateContextFromPixelBuffer(CVPixelBufferRef pixelBuffer)
     
     dispatch_group_notify(_dispatchGroup, dispatch_get_main_queue(), ^{
         if (self->_error == nil) {
-            self->_error = _writer.error;
+            self->_error = self->_writer.error;
         }
         
-        if (self->_error == nil && _writer.status != AVAssetWriterStatusCancelled) {
+        if (self->_error == nil && self->_writer.status != AVAssetWriterStatusCancelled) {
             [self->_writer finishWritingWithCompletionHandler:^{
-                self->_error = _writer.error;
+                self->_error = self->_writer.error;
                 [self callCompletionHandler:completionHandler];
             }];
         } else {
